@@ -1,21 +1,25 @@
 import React, { useEffect, useRef } from "react";
-import { Animated, Button, PanResponder, Text, TouchableOpacity, TouchableOpacityBase, View } from "react-native";
-import Cursor from "./Cursor";
+import {
+  Animated,
+  Button,
+  Dimensions,
+  PanResponder,
+  Text,
+  TouchableOpacity,
+  TouchableOpacityBase,
+  View,
+} from "react-native";
+import Options from "./Options";
 import styles from "./styles";
 
 interface Props {
-  setPos: (x: number, y: number, type: string) => void;
+  setPos: (x: number, y: number, clickBehavior: string, mouseSpeed: number) => void;
+  disconnectBtn: () => void;
 }
 
-export default function TouchScreen(props:Props) {
-  const [startPos, setStartPos] = React.useState({ x: 0, y: 0 });
-  const [endPos, setEndPos] = React.useState({ x: 0, y: 0 });
-  const [disPos, setDisPos] = React.useState({ x: 0, y: 0 });
-  const [screenSize, setScreenSize] = React.useState({ width: 0, height: 0 });
-
-  const getDistance = (startPos:any, endPos:any) => {
-    return Math.sqrt(Math.pow(startPos.x - endPos.x, 2) + Math.pow(startPos.y - endPos.y, 2));
-  }
+export default function TouchScreen(props: Props) {
+  const [behavior, setBehavior] = React.useState("");
+  const [mouseSpeed, setMouseSpeed] = React.useState(1);
 
   const panResponder = useRef(
     PanResponder.create({
@@ -25,57 +29,68 @@ export default function TouchScreen(props:Props) {
         const curX = parseFloat(gestureState.x0.toFixed(10));
         const curY = parseFloat(gestureState.y0.toFixed(10));
         // console.log(curX, curY);
-        
-        setStartPos({ x: curX, y: curY });
-        setEndPos({ x: curX, y: curY });
-        setDisPos({ x: 0, y: 0 });
-        props.setPos(curX, curY, "Grant");
+
+        // setStartPos({ x: curX, y: curY });
+        // setEndPos({ x: curX, y: curY });
+        // setDisPos({ x: 0, y: 0 });
+        setBehavior("Press In");
+        props.setPos(curX, curY, "Grant", mouseSpeed);
       },
       onPanResponderMove: (event, gestureState) => {
         const curX = parseFloat(gestureState.moveX.toFixed(10));
         const curY = parseFloat(gestureState.moveY.toFixed(10));
         // console.log(curX, curY);
-        
-        setDisPos({ x: curX - endPos.x, y: curY - endPos.y });
-        setEndPos({ x: curX, y: curY });
-        props.setPos(curX, curY, "Move");
+
+        // setDisPos({ x: curX - endPos.x, y: curY - endPos.y });
+        // setEndPos({ x: curX, y: curY });
+        setBehavior("Press Move");
+        props.setPos(curX, curY, "Move", mouseSpeed);
       },
       onPanResponderRelease: (event, gestureState) => {
         const curX = parseFloat(gestureState.moveX.toFixed(10));
         const curY = parseFloat(gestureState.moveY.toFixed(10));
-        console.log(screenSize);
-        
-        
-        if(curX === 0 && curY === 0) {
-          if(screenSize.width/2){
-            console.log("Left");
-          }else{
-            console.log("Right");
-          }
-        }else{
-          console.log("Drag");
-          
-        }
+        let { width, height } = Dimensions.get("window");
+        // console.log(width, height, gestureState.x0, gestureState.y0, gestureState.moveX, gestureState.moveY);
 
-        props.setPos(curX, curY, "Release");
-      }
+        if (curX === 0 && curY === 0) {
+          const clickX = parseFloat(gestureState.x0.toFixed(10));
+          const clickY = parseFloat(gestureState.y0.toFixed(10));
+
+          if (clickX < width / 2) {
+            setBehavior("Press Out Left");
+            props.setPos(clickX, clickY, "Left", mouseSpeed);
+          } else {
+            setBehavior("Press Out Right");
+            props.setPos(clickX, clickY, "Right", mouseSpeed);
+          }
+        } else {
+          setBehavior("Press Out");
+          props.setPos(curX, curY, "Release", mouseSpeed);
+        }
+      },
     })
   ).current;
 
   return (
-    <Animated.View
-      style={styles.mousePad}
-    >
-      <View
-        style={{width: "100%", height: "100%", justifyContent: "center", alignItems: "center"}}
-        {...panResponder.panHandlers}
-        onLayout={(event) => {
-          setScreenSize({ width: event.nativeEvent.layout.width, height: event.nativeEvent.layout.height });
-          
-        }}
-      >
-        <Text>{endPos.x.toFixed(2)}, {endPos.y.toFixed(2)}</Text>
-      </View>
-    </Animated.View>
+    <View>
+      <Animated.View style={styles.mousePad}>
+        <View
+          style={{
+            width: "100%",
+            height: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+          {...panResponder.panHandlers}
+          onLayout={(event) => {}}
+        >
+          <Text>{behavior}</Text>
+        </View>
+        <Options 
+          setMouseSpeed={setMouseSpeed}
+          disconnectBtn={props.disconnectBtn}
+        />
+      </Animated.View>
+    </View>
   );
 }

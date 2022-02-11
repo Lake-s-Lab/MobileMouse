@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Button, SafeAreaView, Alert, TextInput, Keyboard, KeyboardAvoidingView, TouchableWithoutFeedback, Pressable } from "react-native";
+import { View, Text, Button, TextInput, Alert } from "react-native";
 import styles from "./styles";
 import React, { useEffect, useRef } from "react";
 
@@ -23,18 +23,22 @@ export default function ConnSettingPage(props: Props) {
           style={styles.ipInput}
           placeholder="Host IP"
           keyboardType="numeric"
-          onChangeText={(text) => {props.setIp(text)}}
+          onChangeText={(text) => {
+            props.setIp(text)
+            
+          }}
           value={props.ip}
         />
         <TextInput
           style={styles.ipInput}
           placeholder="Host Port"
           keyboardType="numeric"
-          onChangeText={(text) => {props.setPort(text)}}
+          onChangeText={(text) => {
+            props.setPort(text)
+          }}
           value={props.port}
         />
-        <Button onPress={connectBtn} title="Connect">
-        </Button>
+        <Button onPress={connectBtn} title="Connect"/>
       </View>
     </View>
   );  

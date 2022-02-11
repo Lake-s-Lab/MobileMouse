@@ -1,9 +1,10 @@
 import React from "react";
 import { Button, View } from "react-native";
+import Options from "./Options";
 import TouchScreen from "./TouchScreen";
 
 interface Props {
-  setPos: (x: number, y: number, type: string) => void;
+  setPos: (x: number, y: number, clickBehavior: string, mouseSpeed: number) => void;
   disconnectBtn: () => void;
 }
 
@@ -12,10 +13,7 @@ export default function DragMousePage(props:Props) {
     <View>
       <TouchScreen
         setPos={props.setPos}
-      />
-      <Button
-        title="Disconnect"
-        onPress={() => {props.disconnectBtn()}}
+        disconnectBtn={props.disconnectBtn}
       />
     </View>
   );

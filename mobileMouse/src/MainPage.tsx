@@ -1,5 +1,4 @@
-import { Button, Text, View, Animated, SafeAreaView, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView } from "react-native";
-import { StyleSheet } from "react-native";
+import { Button, Text, View, Animated, SafeAreaView, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Alert } from "react-native";
 import React, { useEffect, useRef } from "react";
 import ConnSettingPage from "./ConnSettingPage";
 import styles from "./styles";
@@ -10,28 +9,36 @@ export default function MainPage() {
   const [ip, setIp] = React.useState("");
   const [port, setPort] = React.useState("");
   const [isConnected, setIsConnected] = React.useState(false);
-  const [mouseSpeed, setMouseSpeed] = React.useState(1);
 
   const ws = useRef<any>(null);
 
   const connectBtn = () => {
-    setIp(ip);
-    setPort(port);
-    setIsConnected(true);
-    setPageName("DragMousePage");
+    const addrformat = /(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}[:]([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])/;
+    
+    if(addrformat.test(`${ip}:${port}`)){
+
+      setIp(ip);
+      setPort(port);
+      setIsConnected(true);
+      setPageName("DragMousePage");
+  
+    }
+    else{
+      Alert.alert("Invalid IP or Port");
+    }
   }
 
   const disconnectBtn = () => {
     ws.current.close();
     setIsConnected(false);
     setPageName("MainPage");
-  
   }
 
-  const setPos = (x: number, y: number, type: string) => {
+  const setPos = (x: number, y: number, clickBehavior: string, mouseSpeed: number) => {
     // console.log("send");
+    console.log(x, y, clickBehavior, mouseSpeed);
     
-    ws.current.send(JSON.stringify({x: x.toString(), y: y.toString(), type: type, speed: mouseSpeed.toString()}));
+    ws.current.send(JSON.stringify({x: x.toString(), y: y.toString(), type: clickBehavior, speed: mouseSpeed.toString()}));
   }
 
   useEffect(() => {
@@ -41,8 +48,8 @@ export default function MainPage() {
   
       ws.current.onopen = (event:any) => {
         console.log("onopen");
+        Alert.alert("Connected");
         ws.current.send(JSON.stringify({type: "Connect"}));
-  
       }
   
       ws.current.onmessage = (event:any) => {
@@ -51,11 +58,12 @@ export default function MainPage() {
   
       ws.current.onclose = (event:any) => {
         console.log("onclose");
+        Alert.alert("Disconnected");
         setIsConnected(false);
+        setPageName("MainPage");
       }  
     }
   }, [isConnected])
-
 
   if(pageName === "MainPage"){
     return(

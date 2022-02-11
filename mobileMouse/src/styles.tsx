@@ -33,8 +33,19 @@ export default StyleSheet.create({
     alignItems: "center",
     backgroundColor: "grey",
     width: "100%",
-    height: "90%",
+    height: "100%",
     marginBottom: 20,
     justifyContent: "center",
   },
+  options: {
+    width: 60,
+    height: 60,
+    backgroundColor: "white",
+    borderRadius: 20,
+    borderWidth: 2,
+    padding: 5,
+    marginBottom: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  }
 });
